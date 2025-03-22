@@ -23,7 +23,7 @@ int main()
 
     {
         // std map custom allocator
-        std::map<Element, Element, std::less<Element>, my::allocator<ItemsCount, Element>> std_map_cstm_allc;
+        std::map<Element, Element, std::less<Element>, my::allocator<ItemsCount, std::pair<const Element, Element>>> std_map_cstm_allc;
         for (auto i = 0;i < ItemsCount;++i)
             std_map_cstm_allc.insert({i, my::factorial<Element>(i)});
         std::cout << "std map custom allocator [size: " << std_map_cstm_allc.size() << "]> ";
