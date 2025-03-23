@@ -85,6 +85,11 @@ public:
 
     using value_type = T;
 
+    allocator() :
+        std::allocator<T>()
+    {
+    }
+
     // T *allocate(std::size_t n)
     // {
     //     std::cout << __PRETTY_FUNCTION__ << "[n = " << n << "]" << std::endl;
