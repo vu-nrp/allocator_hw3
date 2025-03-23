@@ -73,7 +73,7 @@ private:
 
 };
 
-template<const int size, typename T>
+template</*const int size, */typename T>
 class allocator_ : public std::allocator<T>
 {
 public:
