@@ -85,10 +85,8 @@ public:
 
     using value_type = T;
 
-    allocator() :
-        std::allocator<T>()
-    {
-    }
+    constexpr allocator() noexcept = default;
+    constexpr allocator(const allocator &) noexcept = default;
 
     // T *allocate(std::size_t n)
     // {
