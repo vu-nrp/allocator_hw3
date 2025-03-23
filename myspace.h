@@ -34,15 +34,13 @@ public:
 
     void insert(const T &value)
     {
-        if ((m_size + 1) > m_cap) {
+        if (m_size == m_cap) {
             m_cap = m_size + 1;
 
-            const auto ptr = m_allc.allocate(m_cap);
-            for (size_t i = 0;i < m_size;++i)
-                ptr[i] = m_ptr[i];
-
-            m_allc.deallocate(m_ptr, m_size);
-            m_ptr = ptr;
+            auto ptr = m_allc.allocate(m_cap);
+            std::copy(m_ptr, m_ptr + m_size, ptr);
+            std::swap(m_ptr, ptr);
+            m_allc.deallocate(ptr, m_size);
         }
         m_ptr[m_size++] = value;
     }

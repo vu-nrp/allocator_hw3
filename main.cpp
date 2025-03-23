@@ -63,5 +63,28 @@ int main()
         std::cout << std::endl;
     }
 
+    using Element2 = std::pair<Element, Element>;
+
+    {
+        // x
+        my::container<Element2> x;
+        for (auto i = 0;i < ItemsCount;++i)
+            x.insert({i, my::factorial<Element>(i)});
+        std::cout << "x [size: " << x.size() << "]> ";
+        for (const auto &item: x)
+            std::cout << "{" << item.first << ": " << item.second << "} ";
+        std::cout << std::endl;
+    }
+    {
+        // y
+        my::container<Element2, my::allocator<ItemsCount, Element2>> y;
+        for (auto i = 0;i < ItemsCount;++i)
+            y.insert({i, my::factorial<Element>(i)});
+        std::cout << "y [size: " << y.size() << "]> ";
+        for (const auto &item: y)
+            std::cout << "{" << item.first << ": " << item.second << "} ";
+        std::cout << std::endl;
+    }
+
     return 0;
 }
