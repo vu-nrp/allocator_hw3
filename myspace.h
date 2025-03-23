@@ -85,6 +85,17 @@ public:
 
     // using value_type = T;
 
+    template<class U>
+    allocator_(const allocator_<U>)
+    {
+    }
+
+    template<class U>
+    struct rebind
+    {
+        using other = allocator_<U>;
+    };
+
     constexpr allocator_() noexcept = default;
     constexpr allocator_(const allocator_ &) noexcept = default;
 
