@@ -83,7 +83,7 @@ public:
         using other = std::allocator<R>;
     };
 
-    // using value_type = T;
+    using value_type = T;
 
     // T *allocate(std::size_t n)
     // {
