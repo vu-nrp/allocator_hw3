@@ -74,19 +74,19 @@ private:
 };
 
 template<const int size, typename T>
-class allocator : public std::allocator<T>
+class allocator_ : public std::allocator<T>
 {
 public:
-    template<class R>
-    struct rebind
-    {
-        using other = std::allocator<R>;
-    };
+    // template<class R>
+    // struct rebind
+    // {
+    //     using other = std::allocator<R>;
+    // };
 
-    using value_type = T;
+    // using value_type = T;
 
-    constexpr allocator() noexcept = default;
-    constexpr allocator(const allocator &) noexcept = default;
+    constexpr allocator_() noexcept = default;
+    constexpr allocator_(const allocator_ &) noexcept = default;
 
     // T *allocate(std::size_t n)
     // {
