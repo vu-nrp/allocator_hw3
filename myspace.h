@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <iostream>
+//#include <iostream>
 
 namespace my {
 
@@ -28,7 +28,7 @@ public:
 
     ~container()
     {
-        m_allc.deallocate(m_ptr, m_size);
+        m_allc.deallocate(m_ptr, m_cap);
         m_ptr = nullptr;
     }
 
@@ -77,6 +77,13 @@ template<const int size, typename T>
 class allocator : public std::allocator<T>
 {
 public:
+    template<class R>
+    struct rebind
+    {
+        using other = std::allocator<R>;
+    };
+
+    // using value_type = T;
 
     // T *allocate(std::size_t n)
     // {
