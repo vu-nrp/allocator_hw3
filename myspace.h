@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-//#include <iostream>
+#include <iostream>
 
 namespace my {
 
@@ -18,6 +18,12 @@ class container
 public:
     container()
     {
+    }
+
+    container(const int count, const T &init)
+    {
+        for (int i = 0;i < count;++i)
+            insert(init);
     }
 
     container(std::initializer_list<T> list)
@@ -73,41 +79,71 @@ private:
 
 };
 
-template</*const int size, */typename T>
-class allocator_ : public std::allocator<T>
+template<const int Size, typename T>
+class allocator : public std::allocator<T>
 {
 public:
-    // template<class R>
-    // struct rebind
-    // {
-    //     using other = std::allocator<R>;
-    // };
-
-    // using value_type = T;
+    static constexpr int PoolSize {Size};
 
     template<class U>
-    allocator_(const allocator_<U>)
+    allocator(const allocator<allocator::PoolSize, U>) noexcept
     {
+        initMem();
     }
 
     template<class U>
     struct rebind
     {
-        using other = allocator_<U>;
+        using other = allocator<allocator::PoolSize, U>;
     };
 
-    constexpr allocator_() noexcept = default;
-    constexpr allocator_(const allocator_ &) noexcept = default;
+    constexpr allocator() noexcept
+    {
+        initMem();
+    }
 
-    // T *allocate(std::size_t n)
-    // {
-    //     std::cout << __PRETTY_FUNCTION__ << "[n = " << n << "]" << std::endl;
-    //
-    //     auto p = std::malloc(n * sizeof(T));
-    //     if (!p)
-    //         throw std::bad_alloc();
-    //     return reinterpret_cast<T *>(p);
-    // }
+    // constexpr allocator(const allocator &) noexcept = default;
+
+    T *allocate(std::size_t n)
+    {
+        if (n > allocator::PoolSize)
+            throw std::bad_alloc();
+
+//        std::cout << __FUNCTION__ << " allocate [n = " << n << "]" << std::endl;
+
+//        return reinterpret_cast<T *>();
+
+
+        // v1
+        return std::allocator<T>::allocate(n);
+
+        // v2
+        // auto p = std::malloc(n * sizeof(T));
+        // if (!p)
+        //     throw std::bad_alloc();
+        // return reinterpret_cast<T *>(p);
+    }
+
+    void deallocate(T* const ptr, const size_t count)
+    {
+//        std::cout << __FUNCTION__ << " deallocate [ptr = " << ptr << " count = " << count << "]" << std::endl;
+
+        std::allocator<T>::deallocate(ptr, count);
+    }
+
+protected:
+    void initMem()
+    {
+        constexpr auto PoolLength = sizeof(T) * allocator::PoolSize;
+        m_pool = std::shared_ptr<uint8_t>(new uint8_t[PoolLength], [PoolLength](uint8_t *ptr)
+        {
+            delete[] ptr;
+//            std::cout << __FUNCTION__ << "[pool lenght = " << PoolLength << "] deleted" << std::endl;
+        });
+    }
+
+private:
+    std::shared_ptr<uint8_t> m_pool;
 
 };
 

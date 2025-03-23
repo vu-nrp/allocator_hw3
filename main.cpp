@@ -23,7 +23,7 @@ int main()
 
     {
         // std map custom allocator
-        std::map<Element, Element, std::less<Element>, my::allocator_</*ItemsCount, */std::pair<const Element, Element>>> std_map_cstm_allc;
+        std::map<Element, Element, std::less<Element>, my::allocator<ItemsCount, std::pair<const Element, Element>>> std_map_cstm_allc;
         for (auto i = 0;i < ItemsCount;++i)
             std_map_cstm_allc.insert({i, my::factorial<Element>(i)});
         std::cout << "std map custom allocator [size: " << std_map_cstm_allc.size() << "]> ";
@@ -45,7 +45,7 @@ int main()
 
     {
         // custom container custom allocator
-        my::container<Element, my::allocator_</*ItemsCount, */Element>> cstm_cntr_cstm_allc;
+        my::container<Element, my::allocator<ItemsCount, Element>> cstm_cntr_cstm_allc;
         for (auto i = 0;i < ItemsCount;++i)
             cstm_cntr_cstm_allc.insert(i);
         std::cout << "custom container custom allocator [size: " << cstm_cntr_cstm_allc.size() << "]> ";
@@ -56,7 +56,7 @@ int main()
 
     {
         // custom container list init custom allocator
-        my::container<Element, my::allocator_</*ItemsCount, */Element>> cstm_cntr_cstm_allc_list {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        my::container<Element, my::allocator<ItemsCount, Element>> cstm_cntr_cstm_allc_list {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         std::cout << "custom container list init custom allocator [size: " << cstm_cntr_cstm_allc_list.size() << "]> ";
         for (const auto &item: cstm_cntr_cstm_allc_list)
             std::cout << "{" << item << "} ";
@@ -78,13 +78,20 @@ int main()
 
     {
         // y
-        my::container<Element2, my::allocator_</*ItemsCount, */Element2>> y;
+        my::container<Element2, my::allocator<ItemsCount, Element2>> y;
         for (auto i = 0;i < ItemsCount;++i)
             y.insert({i, my::factorial<Element>(i)});
         std::cout << "y [size: " << y.size() << "]> ";
         for (const auto &item: y)
             std::cout << "{" << item.first << ": " << item.second << "} ";
         std::cout << std::endl;
+    }
+
+    try {
+        my::container<Element, my::allocator<ItemsCount, Element>> cstm_cntr_cstm_allc_list(ItemsCount, -1);
+
+    } catch (...) {
+        std::cout << "exception fire";
     }
 
     return 0;
