@@ -24,6 +24,9 @@ jobs:
 #      # Run Google Tests
 #      - name: 'Run GTest'
 #        run: /home/runner/work/allocator_hw3/allocator_hw3/allocator_test2
+      # Run App Once
+      - name: 'Run App Once'
+        run: /home/runner/work/allocator_hw3/allocator_hw3/allocator
       # Create Release Step
       - name: 'Create Release Step'
         id: create_release
