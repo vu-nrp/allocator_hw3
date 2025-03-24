@@ -8,14 +8,15 @@ project(allocator LANGUAGES CXX VERSION ${PROJECT_VESRION})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# uncomment for detailed output
+# add_compile_definitions(PRINT_ON)
+
 add_executable(${PROJECT_NAME}
     main.cpp
     myspace.h
 )
 
-# include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
-    # LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 

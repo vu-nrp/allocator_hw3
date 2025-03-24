@@ -3,36 +3,42 @@
 #include <memory>
 #include <iostream>
 
+#if PRINT_ON
+    #define PRINT(...) __VA_ARGS__
+#else
+    #define PRINT(...)
+#endif
+
 namespace my {
 
 // calc factorial
-template<typename T>
-T factorial(T n)
+template<typename N>
+N factorial(N n)
 {
-    return (n > 1) ? (n * factorial<T>(n - 1)) : 1;
+    return (n > 1) ? (n * factorial<N>(n - 1)) : 1;
 }
 
 template<typename T, typename Alloc = std::allocator<T>>
-class container
+class array_based_container
 {
 public:
-    container()
+    array_based_container()
     {
     }
 
-    container(const int count, const T &init)
+    array_based_container(const int count, const T &init)
     {
         for (int i = 0;i < count;++i)
             insert(init);
     }
 
-    container(std::initializer_list<T> list)
+    array_based_container(std::initializer_list<T> list)
     {
         for (const auto &item: list)
             insert(item);
     }
 
-    ~container()
+    ~array_based_container()
     {
         m_allc.deallocate(m_ptr, m_cap);
         m_ptr = nullptr;
@@ -83,18 +89,23 @@ template<const int Size, typename T>
 class allocator : public std::allocator<T>
 {
 public:
-    static constexpr int PoolSize {Size};
+    static constexpr int PoolElementsCount {Size};
 
-    template<class U>
-    allocator(const allocator<allocator::PoolSize, U>) noexcept
-    {
-        initMem();
-    }
+    // template<class U>
+    // allocator(const allocator<allocator::PoolElementsCount, U>) noexcept
+    // {
+    //     initMem();
+    // }
 
     template<class U>
     struct rebind
     {
-        using other = allocator<allocator::PoolSize, U>;
+        rebind()
+        {
+            PRINT(std::cout << "rebind: sizeof(U) = " << sizeof(U) << " allocator::PoolElementsCount = " << allocator::PoolElementsCount << std::endl);
+        }
+
+        using other = allocator<Size, U>;
     };
 
     constexpr allocator() noexcept
@@ -102,48 +113,38 @@ public:
         initMem();
     }
 
-    // constexpr allocator(const allocator &) noexcept = default;
-
-    T *allocate(std::size_t n)
+    T *allocate(size_t n)
     {
-        if (n > allocator::PoolSize)
+        if ((m_allocCounter + n) > allocator::PoolElementsCount)
             throw std::bad_alloc();
 
-//        std::cout << __FUNCTION__ << " allocate [n = " << n << "]" << std::endl;
-
-//        return reinterpret_cast<T *>();
-
-
-        // v1
+        m_allocCounter += n;
+        PRINT(std::cout << __FUNCTION__ << ": allocate [n = " << n << "], exist memory for " << (allocator::PoolElementsCount - m_allocCounter) << " items" << std::endl);
         return std::allocator<T>::allocate(n);
-
-        // v2
-        // auto p = std::malloc(n * sizeof(T));
-        // if (!p)
-        //     throw std::bad_alloc();
-        // return reinterpret_cast<T *>(p);
     }
 
-    void deallocate(T* const ptr, const size_t count)
+    void deallocate(T* const ptr, const size_t &count)
     {
-//        std::cout << __FUNCTION__ << " deallocate [ptr = " << ptr << " count = " << count << "]" << std::endl;
-
+        m_allocCounter -= count;
         std::allocator<T>::deallocate(ptr, count);
+        PRINT(std::cout << __FUNCTION__ << ": deallocate [ptr = " << ptr << " count = " << count << "], exist memory for " << (allocator::PoolElementsCount - m_allocCounter) << " items" << std::endl);
     }
 
 protected:
     void initMem()
     {
-        constexpr auto PoolLength = sizeof(T) * allocator::PoolSize;
-        m_pool = std::shared_ptr<uint8_t>(new uint8_t[PoolLength], [PoolLength](uint8_t *ptr)
+        constexpr auto poolLength = sizeof(T) * allocator::PoolElementsCount;
+        PRINT(std::cout << "init memory: sizeof(T) = " << sizeof(T) << ", allocator::PoolElementsCount = " << allocator::PoolElementsCount << ", allocate bytes = " << poolLength << std::endl);
+        m_poolBuffer = std::shared_ptr<uint8_t>(new uint8_t[poolLength], [poolLength](uint8_t *ptr)
         {
             delete[] ptr;
-//            std::cout << __FUNCTION__ << "[pool lenght = " << PoolLength << "] deleted" << std::endl;
+            PRINT(std::cout << __FUNCTION__ << "delete memory: [pool lenght = " << poolLength << " bytes] deleted" << std::endl);
         });
     }
 
 private:
-    std::shared_ptr<uint8_t> m_pool;
+    std::shared_ptr<uint8_t> m_poolBuffer;
+    size_t m_allocCounter {0};
 
 };
 
