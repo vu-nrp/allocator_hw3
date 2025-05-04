@@ -91,12 +91,6 @@ class allocator : public std::allocator<T>
 public:
     static constexpr int PoolElementsCount {Size};
 
-    // template<class U>
-    // allocator(const allocator<allocator::PoolElementsCount, U>) noexcept
-    // {
-    //     initMem();
-    // }
-
     template<class U>
     struct rebind
     {
